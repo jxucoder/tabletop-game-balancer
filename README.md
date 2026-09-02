@@ -105,10 +105,9 @@ things are working (TuRBO-style), avoids picking near-identical candidates in
 one batch, and re-measures its current leaders as it goes.
 
 Three of the four configurations in the final bundle were **never measured at
-`fast` at all**. Nori proposed them directly at `medium`.
-
-Why that model, and what it cannot do, is its
-[own section below](#why-a-tabular-foundation-model--and-where-it-falls-short).
+`fast` at all** — proposed straight at `medium` by this loop. Why this kind of
+model, and what it cannot do, has
+[its own section below](#why-a-tabular-foundation-model--and-where-it-falls-short).
 
 ### 5. Use the cheap score as a *clue*, not a *ranking*
 
@@ -192,9 +191,6 @@ The range in row four is what drives the search. Candidates are ranked by
 `q50 + κ·(q90 − q50)` — the predicted score, plus a bonus wherever the model
 admits it does not know. Without that second term the search only ever revisits
 what already looks good.
-
-**What it did:** three of the four configurations in the final bundle were never
-measured at `fast` at all. They were proposed straight at `medium` by this loop.
 
 ### Where it falls short
 
