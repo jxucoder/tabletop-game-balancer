@@ -243,22 +243,56 @@ docs/COMPETITION.md the task, the API, the scoring
 
 ---
 
-## What did not work
+## Lessons
 
-The failures carry most of the lesson.
+Every submission's real score is in [`docs/SUBMISSIONS.md`](docs/SUBMISSIONS.md).
 
-* **Ranking by `fast`.** Sent the search backwards for hours on Exploding
-  Kittens. The fix was checking each game, not a better optimiser.
-* **Changing several games in one submission.** Only 13% of the gain carried
-  over, because one part rested on a single measurement.
+### What worked
+
+* **Never trust one measurement.** Everything gets 3+ repeats before it is
+  believed. The first bundle, built from each game's best single score, read
+  **3781** and was really **3485** — nearly 300 points of luck.
+* **One change per submission.** This turns every submission into a clean
+  experiment. A single-game change carried over at **2.83×** its measured size;
+  a three-game bundle carried over at **0.04×**.
+* **Open the black box.** The server logs the actual and target win-rate tables.
+  The season's targets are published nowhere else.
+* **Cheap score as an input, not a ranking.** Average error predicting `medium`
+  drops from **28.21 to 25.97** when the `fast` score is one more column.
+
+### What went wrong
+
+One mistake repeats throughout: **reading a pattern out of very few points, then
+betting on it.**
+
+* *"`fast` is backwards for Exploding Kittens, correlation −0.79."* Measured
+  properly on the 18 configurations that have both, it is **+0.43**. Weak, not
+  backwards. The −0.79 was a rank correlation on a much smaller early sample,
+  and it got quoted as settled fact for days.
+* *"For 7 Wonders, a higher `medium` score means a worse `full` score."* Built
+  from one pair of submissions. Both probes testing it came back **positive**
+  (+5.9 and +4.2). There was no such relationship.
+* *"Dominion's `fast` is trustworthy"* — from **two** matching data points
+  (963 → 971, 961 → 969). A submission built on that swapped in a
+  higher-`fast` Dominion configuration and **lost 32.4 points**. The most
+  expensive of these mistakes.
+
+The pattern is always the same: a small sample produces a clean-looking story,
+the story becomes the plan, and the plan costs more than the noise it was
+built on. The habit that fixed it everywhere else — *measure again before
+believing* — is exactly the one that kept getting skipped when the claim was
+about a **relationship** rather than a score.
+
+Two more, less dramatic:
+
 * **Trusting the §6 breakdown when read at `fast`.** Twice it produced a
   convincing direction (`SEETHEFUTURE=6`, then `NOPE=10`, each roughly halving
   the distance) that `medium` then rejected. The breakdown is sound; reading it
-  at the cheap setting was not.
+  at the cheap setting was not — the same trap as §2.
 * **A variance idea** — that well-balanced rules should bounce around more
   between repeats, since their measured distance is mostly noise. Checked
-  against two configurations whose real scores we knew. It was wrong: 15.3
-  versus 16.3, the opposite way round.
+  against two configurations whose real scores we knew, and it was wrong: 15.3
+  versus 16.3, the opposite way round. Cheap to test, so cheap to drop.
 
 ## Thanks
 
