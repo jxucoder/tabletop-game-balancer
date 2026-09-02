@@ -1,0 +1,118 @@
+{
+  "entry_name": "probe-w7-lo",
+  "leaderboard_score": 3652.5,
+  "params": {
+    "CantStop": {
+      "COLUMNS_TO_WIN": 2,
+      "EIGHT_MAX": 12,
+      "ELEVEN_MAX": 2,
+      "FIVE_MAX": 10,
+      "FOUR_MAX": 5,
+      "MARKERS": 2,
+      "NINE_MAX": 6,
+      "SEVEN_MAX": 14,
+      "SIX_MAX": 9,
+      "TEN_MAX": 8,
+      "THREE_MAX": 5,
+      "TWELVE_MAX": 1,
+      "TWO_MAX": 3
+    },
+    "Dominion": {
+      "CARDS": [
+        "CELLAR",
+        "COUNCIL_ROOM",
+        "GARDENS",
+        "MERCHANT",
+        "REMODEL",
+        "SENTRY",
+        "THRONE_ROOM",
+        "VILLAGE",
+        "WITCH",
+        "WORKSHOP"
+      ],
+      "COPPER_SUPPLY": 40,
+      "CURSE_CARDS_PER_PLAYER": 20,
+      "GOLD_SUPPLY": 20,
+      "HAND_SIZE": 5,
+      "KINGDOM_CARDS_OF_EACH_TYPE": 15,
+      "PILES_EXHAUSTED_FOR_GAME_END": 1,
+      "SILVER_SUPPLY": 40,
+      "STARTING_COPPER": 3,
+      "STARTING_ESTATES": 7
+    },
+    "ExplodingKittens": {
+      "ATTACK_count": 1,
+      "BEARDCAT_count": 1,
+      "DEFUSE_count": 8,
+      "FAVOR_count": 10,
+      "FURRYCAT_count": 1,
+      "MELONCAT_count": 2,
+      "NOPE_count": 8,
+      "RAINBOWCAT_count": 1,
+      "SEETHEFUTURE_count": 10,
+      "SHUFFLE_count": 1,
+      "SKIP_count": 1,
+      "TACOCAT_count": 1,
+      "nCardsPerPlayer": 3,
+      "nopeOwnCards": true
+    },
+    "Wonders7": {
+      "builderMultiplier": 3,
+      "commercialMultiplierHigh": 2,
+      "commercialMultiplierLow": 1,
+      "commercialMultiplierMed": 5,
+      "decoratorVictoryPoints": 6,
+      "guildMultiplierLow": 4,
+      "guildMultiplierMed": 2,
+      "manufacturedMaterial": 1,
+      "militaryHigh": 1,
+      "militaryLow": 3,
+      "militaryMed": 2,
+      "nCoinsDiscard": 0,
+      "nCostDiscountedResource": 3,
+      "nCostNeighbourResource": 4,
+      "rawMaterialHigh": 2,
+      "rawMaterialLow": 5,
+      "scienceCog": 3,
+      "scienceCompass": 3,
+      "scienceTablet": 2,
+      "startingCoins": 0,
+      "tavernMoney": 4,
+      "victoryHigh": 7,
+      "victoryLow": 1,
+      "victoryMed": 1,
+      "victoryPalace": 8,
+      "victoryPantheon": 6,
+      "victoryVeryHigh": 6,
+      "wildcardProduction": 3,
+      "wonders": [
+        "TheColossusOfRhodes",
+        "TheHangingGardensOfBabylon",
+        "TheLighthouseOfAlexandria",
+        "TheMausoleumOfHalicarnassus",
+        "ThePyramidsOfGiza",
+        "TheStatueOfZeusInOlympia",
+        "TheTempleOfArtemisInEphesus"
+      ]
+    }
+  },
+  "per_game_medium": {
+    "CantStop": {
+      "mean": 910.92,
+      "n": 7
+    },
+    "Dominion": {
+      "mean": 956.13,
+      "n": 3
+    },
+    "ExplodingKittens": {
+      "mean": 889.22,
+      "n": 12
+    },
+    "Wonders7": {
+      "mean": 898.02,
+      "n": 7
+    }
+  },
+  "rank": 2
+}

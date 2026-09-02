@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv*/
+.env
+results/*.sqlite
+results/*.sqlite-wal
+results/*.sqlite-shm
+results/*.log
+results/*.pid
+results/state/
+.DS_Store
