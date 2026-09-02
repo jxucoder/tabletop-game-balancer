@@ -74,6 +74,54 @@ Three of the four configurations in the final bundle have **zero `fast`
 observations** — proposed directly by the surrogate at `medium`, not promoted
 from a cheap search.
 
+<details>
+<summary><b>Why a tabular foundation model, and where it falls short</b></summary>
+
+Nori does regression by in-context learning: hand it labelled rows and it
+predicts new ones in a single forward pass, with no training step and no
+hyperparameters to fit. Four properties made it a good fit for this problem:
+
+* **Refits for free.** The surrogate is rebuilt every generation on a growing
+  dataset. A Gaussian process needs a kernel choice and a hyperparameter fit
+  each time; Nori takes the table as it is.
+* **Mixed, structured features.** Our encoding is 13–36 columns mixing ordered
+  integers with multi-hot card and wonder selections. That wants a bespoke
+  kernel from a GP; a tabular model just reads the columns.
+* **Missing values are first-class.** This is what makes the multi-fidelity
+  design in §5 work at all: configurations never run at `fast` carry NaN in that
+  column rather than a fabricated number.
+* **Calibrated quantiles.** `q90 − q50` is the explore term in the acquisition
+  function. A point regressor cannot say where it is guessing, so it cannot tell
+  you where exploring pays.
+
+The regime also suits it — 20 to 750 labelled rows per game is far too few to
+train a network from scratch, and the model's synthetic-data prior does the
+regularising.
+
+The costs are real:
+
+* **No notion of label reliability.** Every row is weighted equally whether its
+  label is a mean of one observation or of seven. Our labels are means of
+  varying `n` over a very noisy objective, which is exactly the heteroscedastic
+  case classical BO models explicitly and this does not.
+* **Confidently wrong on a bad signal.** Fed `fast` labels for Exploding
+  Kittens it learned the misleading relationship faithfully and pointed the
+  search at bad regions with tight quantiles. A GP with an explicit noise term
+  would at least have widened its posterior. The model cannot rescue a
+  measurement mistake — see §2.
+* **Opaque.** No kernel to inspect, no coefficients to read. Questions like
+  "which parameter actually matters" had to be answered by separate analysis,
+  not by interrogating the surrogate.
+* **Wrong tool below ~15 labels.** The `medium → full` calibration has only one
+  label per submission, so [`calibrate.py`](src/ttbalance/calibrate.py) and
+  [`transfer.py`](src/ttbalance/transfer.py) deliberately use plain regression
+  there instead; a foundation model would overfit a dozen points.
+* **Unproven margin.** No controlled A/B was run against `pbil` on the same
+  `medium` data, so the honest claim is that these configurations came out of
+  the Nori loop — not that another optimiser would have missed them.
+
+</details>
+
 ### 5. Cheap score as a feature, not a ranker
 
 Ranking by `fast` fails; that argues against `fast` as a *ranker*, not as a
