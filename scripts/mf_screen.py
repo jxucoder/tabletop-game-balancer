@@ -1,7 +1,7 @@
 """Cheap parallel screening: fast-screen a wide pool, medium-verify the few.
 
-A fast run costs ~2 min (~$0.007); a medium one 15-40 min (~$0.05-0.10). So we
-buy breadth at fast and depth at medium: score a large candidate pool cheaply
+A fast run takes ~2 min; a medium one 15-40. So we buy breadth at fast and
+depth at medium: score a large candidate pool cheaply
 in parallel on Modal, feed those scores to the multi-fidelity model as a
 feature (never as a ranker — fast tracks medium only weakly), and spend medium
 runs on the handful the model ranks highest.
