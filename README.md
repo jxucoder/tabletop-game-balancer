@@ -107,49 +107,8 @@ one batch, and re-measures its current leaders as it goes.
 Three of the four configurations in the final bundle were **never measured at
 `fast` at all**. Nori proposed them directly at `medium`.
 
-<details>
-<summary><b>Why a tabular foundation model — and where it falls short</b></summary>
-
-Nori learns from examples in context: give it labelled rows, it predicts new
-ones in one pass. No training step, no hyperparameters to tune. Four reasons
-that fit this problem:
-
-* **Refitting is free.** We rebuild the model every round on more data. A
-  Gaussian process needs a kernel choice and a fresh hyperparameter fit each
-  time. Nori just takes the table.
-* **It reads mixed columns.** Our configurations become 13–36 columns: ordered
-  numbers next to yes/no flags for which cards and wonders are in play. A GP
-  would need a custom kernel for that.
-* **Missing values are fine.** This is what makes §5 work: a configuration never
-  run at `fast` gets a blank in that column, not a made-up number.
-* **It gives a range, not just a guess.** `q90 − q50` is the "how unsure am I"
-  term in step 3. A model that only outputs one number cannot tell you where
-  exploring is worth it.
-
-The data size suits it too — 20 to 750 labelled rows per game is far too few to
-train a network from scratch.
-
-The drawbacks are real:
-
-* **It treats all labels as equally trustworthy.** A score averaged over one
-  measurement counts the same as one averaged over seven. Our objective is very
-  noisy and the counts vary, which is exactly what classical Bayesian
-  optimisation models explicitly and this does not.
-* **Bad input, confident bad output.** Fed `fast` scores for Exploding Kittens,
-  it learned the misleading pattern faithfully and pointed the search at bad
-  configurations with a *narrow* confidence range. A GP with a noise term would
-  at least have widened. The model cannot fix a measurement mistake — see §2.
-* **You cannot look inside.** No kernel to inspect, no coefficients to read.
-  "Which parameter actually matters?" had to be answered by separate analysis.
-* **Wrong tool below ~15 labels.** The `medium → full` calibration gets one
-  label per submission, so [`calibrate.py`](src/ttbalance/calibrate.py) and
-  [`transfer.py`](src/ttbalance/transfer.py) use plain regression there instead.
-* **We never proved it beat the alternatives.** No head-to-head against `pbil`
-  on the same `medium` data was run. The honest claim is that these
-  configurations came out of the Nori loop, not that nothing else would have
-  found them.
-
-</details>
+Why that model, and what it cannot do, is its
+[own section below](#why-a-tabular-foundation-model--and-where-it-falls-short).
 
 ### 5. Use the cheap score as a *clue*, not a *ranking*
 
@@ -201,6 +160,58 @@ time. [`scripts/localapi.sh`](scripts/localapi.sh) runs a local pool.
 evaluations take up to 40 minutes.
 
 ---
+
+## Why a tabular foundation model — and where it falls short
+
+Nori learns from examples given to it in the moment: hand it a table of
+configurations and their scores, and it predicts new rows in one pass. There is
+no training step and nothing to tune.
+
+That matters because of how this search actually runs. Every round adds ~10 new
+measurements and the model is rebuilt from scratch — about 40 times per game.
+Anything with settings of its own becomes a second tuning problem sitting on top
+of the one being solved.
+
+### What this problem demands
+
+Six things, and they knock out most of the usual choices:
+
+| What the search needs | Tabular foundation model | Gaussian process | Gradient boosting | Linear model |
+|---|---|---|---|---|
+| **Rebuild ~40× per game** as results arrive | free — hand it the table | needs a kernel choice and a fresh fit each time | fast, but has its own settings | free |
+| **13–36 mixed columns** — ordered numbers next to yes/no flags for which cards are in play | handles both | needs a custom kernel per game | handles both | needs interaction terms written by hand |
+| **Blank cells** where a configuration was never run cheaply (see §5) | handles them | no — must invent a fill-in value | handles them | no |
+| **A range, not one number**, so the search knows where it is unsure | gives q10 / q50 / q90 | yes — this is its whole purpose | only with extra work | only under assumptions |
+| **20–750 labelled rows** per game | built for this size | built for this size | overfits | fits, but too rigid to capture the shape |
+| **Labels of unequal reliability** — a score from 1 repeat vs 7 | **no** | yes — a per-point noise term | no | only with weights |
+
+The last row is the one place a Gaussian process is plainly better, and it is
+not a small point on an objective this noisy.
+
+The range in row four is what drives the search. Candidates are ranked by
+`q50 + κ·(q90 − q50)` — the predicted score, plus a bonus wherever the model
+admits it does not know. Without that second term the search only ever revisits
+what already looks good.
+
+**What it did:** three of the four configurations in the final bundle were never
+measured at `fast` at all. They were proposed straight at `medium` by this loop.
+
+### Where it falls short
+
+| Limitation | What it cost | What we did about it |
+|---|---|---|
+| **Every label weighs the same.** A score averaged over 7 measurements counts no more than one lucky single run. | The model happily chases noise. Early on this is exactly how a bundle reads 3781 and confirms at 3485. | Confirmation happens *outside* the model. Nothing is believed until it survives 3+ repeats (§1). |
+| **Bad input, confident bad output.** | Fed `fast` scores for Exploding Kittens, it reproduced the misleading pattern faithfully — and with a *narrow* confidence range, so the search never doubted it. | `fast` is never used as a label. It enters only as one more column (§5). A model cannot repair a measurement mistake. |
+| **Nothing to look inside.** No kernel, no coefficients, no importances. | "Which parameter actually matters?" is unanswerable from the model. | Answered separately: one-variable-at-a-time submissions (§3) and the score breakdown (§6). |
+| **Wrong tool below ~15 rows.** | The `medium → full` relationship gets one new label per submission — 14 in total. | Plain regression there instead: [`calibrate.py`](src/ttbalance/calibrate.py), [`transfer.py`](src/ttbalance/transfer.py). |
+| **Each round is a network call.** | Irrelevant here, since one `medium` measurement takes 15–40 minutes anyway. | Would rule it out entirely for a cheap objective. |
+| **Never proved better than the alternatives.** | No head-to-head against `pbil` on identical data was ever run. | The honest claim: these configurations came out of this loop — not that nothing else would have found them. |
+
+The pattern across the table is that the model is good at *proposing* and bad at
+*judging*. Everything that decides what to believe — repeat counts, which
+measurement to trust, what a change was really worth — is handled by the
+measurement discipline around it, not by the model.
+
 
 ## Running it
 
